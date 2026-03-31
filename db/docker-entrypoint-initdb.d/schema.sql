@@ -5,6 +5,11 @@ CREATE DATABASE IF NOT EXISTS dinggo_challenge
   CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
 
+-- Application-level DB account (avoid using root in app runtime).
+CREATE USER IF NOT EXISTS 'app_admin'@'%' IDENTIFIED BY 'app_admin_pass';
+GRANT ALL PRIVILEGES ON dinggo_challenge.* TO 'app_admin'@'%';
+FLUSH PRIVILEGES;
+
 USE dinggo_challenge;
 
 SET NAMES utf8mb4;
@@ -51,7 +56,7 @@ CREATE TABLE IF NOT EXISTS car (
 CREATE TABLE IF NOT EXISTS quote (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   car_id BIGINT UNSIGNED NOT NULL,
-  price DECIMAL(12, 2) NOT NULL,
+  price_in_cent INT UNSIGNED NOT NULL,
   repairer VARCHAR(255) NOT NULL,
   overview_of_work TEXT NOT NULL,
   fetched_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -62,4 +67,3 @@ CREATE TABLE IF NOT EXISTS quote (
   KEY idx_quote_fetched_at (fetched_at),
   KEY idx_quote_repairer (repairer)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-

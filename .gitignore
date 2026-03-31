@@ -1,0 +1,18 @@
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+
+# Logs
+*.log
+
+# Backend artifacts
+php-test-car-app-be/vendor/
+php-test-car-app-be/.env
+php-test-car-app-be/.phpunit.result.cache
+php-test-car-app-be/coverage/
+
+# Frontend artifacts
+php-test-car-app-fe/node_modules/
+php-test-car-app-fe/dist/
+php-test-car-app-fe/.env

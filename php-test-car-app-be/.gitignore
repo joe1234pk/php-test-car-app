@@ -1,0 +1,24 @@
+/vendor/
+
+# Environment
+/.env
+/.env.*
+!/.env.example
+
+# Runtime and cache
+/bootstrap/cache/*.php
+/storage/*.key
+/storage/logs/
+/storage/framework/cache/
+/storage/framework/sessions/
+/storage/framework/testing/
+/storage/framework/views/
+
+# Test and coverage artifacts
+/.phpunit.result.cache
+/coverage/
+
+# OS/editor noise
+.DS_Store
+.idea/
+.vscode/

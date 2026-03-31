@@ -1,0 +1,56 @@
+services:
+  mysql:
+    image: mysql:8
+    container_name: php-test-car-app-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: dinggo_challenge
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./db/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-proot"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  app:
+    build:
+      context: ./php-test-car-app-be
+      dockerfile: Dockerfile
+    container_name: php-test-car-app-be
+    ports:
+      - "8080:8000"
+    env_file:
+      - ./php-test-car-app-be/.env
+    volumes:
+      - ./php-test-car-app-be:/var/www/app
+    depends_on:
+      mysql:
+        condition: service_healthy
+    command: >
+      sh -c "composer install --no-interaction --prefer-dist
+      && php -S 0.0.0.0:8000 -t public"
+
+  frontend:
+    profiles: ["frontend"]
+    build:
+      context: ./php-test-car-app-fe
+      dockerfile: Dockerfile
+    container_name: php-test-car-app-fe
+    environment:
+      VITE_PROXY_TARGET: ${VITE_PROXY_TARGET:-http://app:8000}
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./php-test-car-app-fe:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      app:
+        condition: service_started
+    command: >
+      sh -c "npm ci
+      && npm run dev -- --host 0.0.0.0 --port 5173"
+
+volumes:
+  mysql_data:
