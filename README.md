@@ -12,6 +12,7 @@ Monorepo for the Dinggo PHP test solution with three components:
 - `db/docker-entrypoint-initdb.d/schema.sql`: auto-init SQL for MySQL
 - `php-test-car-app-be/`: backend source, tests, Dockerfile
 - `php-test-car-app-fe/`: frontend source, `.nvmrc` (Node 24), Dockerfile
+- `k8s/`: Kubernetes manifests (`base` + `overlays`)
 
 ## Prerequisites
 
@@ -82,6 +83,24 @@ cd /Applications/php_projs/cartest
 docker compose exec app composer install
 docker compose exec app ./vendor/bin/phpunit tests/
 ```
+
+## Kubernetes setup
+
+Kubernetes manifests are available under `k8s/` with `kustomize` layout:
+
+- `k8s/base`: shared namespace, mysql, db init job, backend, frontend, ingress
+- `k8s/overlays/dev|staging|prod`: environment-specific image tags and patches
+
+Quick start:
+
+```bash
+cd /Applications/php_projs/cartest
+kubectl apply -f k8s/base/namespace.yaml
+kubectl create configmap cartest-db-schema -n cartest --from-file=schema.sql=db/docker-entrypoint-initdb.d/schema.sql --dry-run=client -o yaml | kubectl apply -f -
+kubectl apply -k k8s/overlays/dev
+```
+
+Before applying, update image names/tags in the overlay (`your-registry/cartest-be` and `your-registry/cartest-fe`) and set real secret values in `k8s/base/secret.example.yaml`.
 
 ## Common operations
 
