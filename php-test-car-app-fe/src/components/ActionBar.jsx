@@ -8,13 +8,15 @@ function ActionBar({ syncingCars, syncingQuotes, loadingCars, onSyncCars, onSync
       >
         {syncingCars ? 'Syncing cars...' : 'Sync Cars'}
       </button>
-      <button
-        onClick={onSyncQuotes}
-        disabled={syncingQuotes}
-        className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
-      >
-        {syncingQuotes ? 'Syncing quotes...' : 'Sync Quotes'}
-      </button>
+      {onSyncQuotes && (
+        <button
+          onClick={onSyncQuotes}
+          disabled={syncingQuotes}
+          className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+        >
+          {syncingQuotes ? 'Syncing quotes...' : 'Sync Quotes'}
+        </button>
+      )}
       <button
         onClick={onRefreshCars}
         disabled={loadingCars}

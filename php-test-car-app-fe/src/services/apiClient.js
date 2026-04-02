@@ -16,6 +16,7 @@ export const apiClient = {
   },
   syncCars: async () => request('/api/sync/cars', { method: 'POST' }),
   syncQuotes: async () => request('/api/sync/quotes', { method: 'POST' }),
+  syncQuotesByCarId: async (carId) => request(`/api/sync/quotes/${carId}`, { method: 'POST' }),
   getQuotesByCarId: async (carId) => {
     const response = await request(`/api/cars/${carId}/quotes`)
     return response.data || []
