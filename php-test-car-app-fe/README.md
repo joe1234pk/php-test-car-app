@@ -10,11 +10,11 @@ Frontend app for the Dinggo challenge using React + Tailwind + Vite.
 - React Router
 - Node `24.x` (via `.nvmrc`)
 - Yarn 4
-- Docker (optional profile run)
+- Docker
 
 ## FE structure
 
-- `src/routers/` - route config (`/` default page)
+- `src/routers/` - route config (`/` redirects to `/cars`)
 - `src/services/` - backend API client
 - `src/components/` - reusable UI components
 - `src/pages/` - page containers
@@ -22,10 +22,9 @@ Frontend app for the Dinggo challenge using React + Tailwind + Vite.
 
 ## UI scope
 
-- Default route: `/`
-- Cars table display
-- Car-specific quotes display
-- Sync action buttons for cars/quotes
+- `/cars` page: car operations and car list
+- `/cars/:carId` page: quotes for a specific car
+- Sync/reload action buttons on both pages
 
 ## Run / setup
 

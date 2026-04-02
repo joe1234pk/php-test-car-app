@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import ActionBar from '../components/ActionBar.jsx'
+import DataTable from '../components/DataTable.jsx'
 import ErrorBanner from '../components/ErrorBanner.jsx'
 import { apiClient } from '../services/apiClient.js'
 
@@ -10,7 +11,7 @@ function CarsPage() {
   const [syncingCars, setSyncingCars] = useState(false)
   const [error, setError] = useState('')
 
-  const loadCars = async () => {
+  const loadCars = useCallback(async () => {
     setError('')
     setLoadingCars(true)
     try {
@@ -21,9 +22,9 @@ function CarsPage() {
     } finally {
       setLoadingCars(false)
     }
-  }
+  }, [])
 
-  const syncCars = async () => {
+  const syncCars = useCallback(async () => {
     setError('')
     setSyncingCars(true)
     try {
@@ -34,11 +35,52 @@ function CarsPage() {
     } finally {
       setSyncingCars(false)
     }
-  }
+  }, [loadCars])
 
   useEffect(() => {
     loadCars()
-  }, [])
+  }, [loadCars])
+
+  const actions = useMemo(
+    () => [
+      {
+        id: 'sync-cars',
+        label: 'Sync Cars from Live API',
+        loadingLabel: 'Syncing cars from live API...',
+        loading: syncingCars,
+        onClick: syncCars,
+        variant: 'primary',
+      },
+      {
+        id: 'reload-cars',
+        label: 'Reload Saved Cars',
+        loadingLabel: 'Reloading saved cars...',
+        loading: loadingCars,
+        onClick: loadCars,
+        variant: 'outline',
+        icon: 'refresh',
+      },
+    ],
+    [syncingCars, syncCars, loadingCars, loadCars]
+  )
+
+  const columns = useMemo(
+    () => [
+      { key: 'plate', header: 'Plate', renderCell: (car) => car.license_plate },
+      { key: 'state', header: 'State', renderCell: (car) => car.license_state },
+      { key: 'makeModel', header: 'Make / Model', renderCell: (car) => `${car.make} / ${car.model}` },
+      {
+        key: 'action',
+        header: 'Action',
+        renderCell: (car) => (
+          <Link to={`/cars/${car.id}`} className="text-sm font-medium text-indigo-600 hover:text-indigo-500">
+            View quotes
+          </Link>
+        ),
+      },
+    ],
+    []
+  )
 
   return (
     <main className="mx-auto max-w-6xl p-6 md:p-10">
@@ -46,57 +88,25 @@ function CarsPage() {
         <h1 className="mb-2 text-2xl font-semibold text-slate-900">PHP Test Car App</h1>
         <p className="text-sm text-slate-600">Car operations and list</p>
 
-        <ActionBar
-          syncingCars={syncingCars}
-          loadingCars={loadingCars}
-          onSyncCars={syncCars}
-          onRefreshCars={loadCars}
-        />
+        <ActionBar actions={actions} />
+        <p className="mt-2 text-xs text-slate-500">
+          Sync pulls latest car list from live API. Reload fetches currently stored cars from this app.
+        </p>
 
         <ErrorBanner message={error} />
       </div>
 
       <section className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
         <h2 className="mb-4 text-lg font-semibold text-slate-900">Cars</h2>
-        <div className="max-h-[34rem] overflow-auto rounded-md border border-slate-200">
-          <table className="min-w-full text-left text-sm">
-            <thead className="bg-slate-50 text-slate-600">
-              <tr>
-                <th className="px-3 py-2">Plate</th>
-                <th className="px-3 py-2">State</th>
-                <th className="px-3 py-2">Make / Model</th>
-                <th className="px-3 py-2">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {cars.length === 0 ? (
-                <tr>
-                  <td className="px-3 py-3 text-slate-500" colSpan={4}>
-                    {loadingCars ? 'Loading cars...' : 'No cars loaded yet.'}
-                  </td>
-                </tr>
-              ) : (
-                cars.map((car) => (
-                  <tr key={car.id} className="border-t border-slate-100">
-                    <td className="px-3 py-2">{car.license_plate}</td>
-                    <td className="px-3 py-2">{car.license_state}</td>
-                    <td className="px-3 py-2">
-                      {car.make} / {car.model}
-                    </td>
-                    <td className="px-3 py-2">
-                      <Link
-                        to={`/cars/${car.id}`}
-                        className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
-                      >
-                        View quotes
-                      </Link>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+        <DataTable
+          columns={columns}
+          rows={cars}
+          rowKey={(car) => car.id}
+          isLoading={loadingCars}
+          loadingText="Loading cars..."
+          emptyText="No cars loaded yet."
+          maxHeightClass="max-h-[34rem]"
+        />
       </section>
     </main>
   )

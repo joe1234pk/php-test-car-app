@@ -64,6 +64,5 @@ CREATE TABLE IF NOT EXISTS quote (
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   KEY idx_quote_car_id (car_id),
-  KEY idx_quote_fetched_at (fetched_at),
-  KEY idx_quote_repairer (repairer)
+  KEY idx_quote_fetched_at (fetched_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

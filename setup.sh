@@ -15,8 +15,8 @@ usage() {
 Usage: ./setup.sh [options]
 
 Options:
-  --backend-only    Start backend + database only
-  --with-frontend   Explicitly include frontend profile (default behavior)
+  --backend-only    Start backend + database only (default includes frontend)
+  --with-frontend   Explicitly include frontend (same as default)
   --reset           Reset environment first (down -v + remove named containers)
   --no-build        Skip image build during compose up
   --smoke           Run API smoke calls after setup (sync cars/quotes)
@@ -81,9 +81,9 @@ if [[ "$RESET" == true ]]; then
   docker rm -f php-test-car-app-be php-test-car-app-mysql php-test-car-app-fe >/dev/null 2>&1 || true
 fi
 
-PROFILE_ARGS=()
-if [[ "$WITH_FRONTEND" == true ]]; then
-  PROFILE_ARGS+=(--profile frontend)
+SERVICE_ARGS=(mysql app frontend)
+if [[ "$WITH_FRONTEND" == false ]]; then
+  SERVICE_ARGS=(mysql app)
 fi
 
 UP_ARGS=(--build -d)
@@ -92,7 +92,7 @@ if [[ "$NO_BUILD" == true ]]; then
 fi
 
 echo "Starting services..."
-docker compose "${PROFILE_ARGS[@]}" up "${UP_ARGS[@]}"
+docker compose up "${UP_ARGS[@]}" "${SERVICE_ARGS[@]}"
 
 wait_for_url() {
   local url="$1"

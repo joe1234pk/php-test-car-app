@@ -6,8 +6,6 @@ This directory provides a `kustomize`-based deployment setup for the current mon
 
 - `base/`: reusable manifests for namespace, mysql, db init, backend, frontend, and ingress
 - `overlays/dev`: dev-specific host and image tags
-- `overlays/staging`: staging-specific host/app config and image tags
-- `overlays/prod`: production-specific host/app config/HPA and image tags
 
 ## Prerequisites
 
@@ -57,14 +55,6 @@ Then apply manifests:
 kubectl apply -k k8s/overlays/dev
 ```
 
-For other environments:
-
-```bash
-kubectl create configmap cartest-db-schema -n cartest --from-file=schema.sql=db/docker-entrypoint-initdb.d/schema.sql --dry-run=client -o yaml | kubectl apply -f -
-kubectl apply -k k8s/overlays/staging
-kubectl apply -k k8s/overlays/prod
-```
-
 ## 4) Validate
 
 ```bash
@@ -73,5 +63,21 @@ kubectl get svc -n cartest
 kubectl get ingress -n cartest
 kubectl logs job/mysql-schema-init -n cartest
 ```
+
+## 5) Access (local cluster)
+
+Frontend is exposed as NodePort:
+
+- `http://localhost:30173`
+
+If your local cluster does not bind NodePort to localhost, use the node IP:
+
+```bash
+kubectl get nodes -o wide
+```
+
+Then open:
+
+- `http://<NODE_IP>:30173`
 
 The DB schema is loaded by `mysql-schema-init` job from ConfigMap `cartest-db-schema`, sourced from `db/docker-entrypoint-initdb.d/schema.sql`.

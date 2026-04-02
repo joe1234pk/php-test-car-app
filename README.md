@@ -8,7 +8,7 @@ Monorepo for the Dinggo PHP test solution with three components:
 
 ## Repository structure
 
-- `docker-compose.yml` (root): main orchestration for MySQL + BE (+ optional FE profile)
+- `docker-compose.yml` (root): main orchestration for MySQL + BE + FE (backend-only optional)
 - `db/docker-entrypoint-initdb.d/schema.sql`: auto-init SQL for MySQL
 - `php-test-car-app-be/`: backend source, tests, Dockerfile
 - `php-test-car-app-fe/`: frontend source, `.nvmrc` (Node 24), Dockerfile
@@ -45,7 +45,7 @@ From repo root:
 
 ```bash
 cd /Applications/php_projs/cartest
-docker compose --profile frontend up --build -d
+docker compose up --build -d
 docker compose ps
 ```
 
@@ -53,7 +53,7 @@ Backend-only manual startup:
 
 ```bash
 cd /Applications/php_projs/cartest
-docker compose up --build -d
+docker compose up --build -d mysql app
 docker compose ps
 ```
 
@@ -89,7 +89,7 @@ docker compose exec app ./vendor/bin/phpunit tests/
 Kubernetes manifests are available under `k8s/` with `kustomize` layout:
 
 - `k8s/base`: shared namespace, mysql, db init job, backend, frontend, ingress
-- `k8s/overlays/dev|staging|prod`: environment-specific image tags and patches
+- `k8s/overlays/dev`: current runnable overlay
 
 Quick start:
 
@@ -100,7 +100,11 @@ kubectl create configmap cartest-db-schema -n cartest --from-file=schema.sql=db/
 kubectl apply -k k8s/overlays/dev
 ```
 
-Before applying, update image names/tags in the overlay (`your-registry/cartest-be` and `your-registry/cartest-fe`) and set real secret values in `k8s/base/secret.example.yaml`.
+Before applying, confirm image names/tags in `k8s/overlays/dev/kustomization.yaml` and set real secret values in `k8s/base/secret.example.yaml`.
+
+After deploy, frontend is exposed via NodePort:
+
+- `http://localhost:30173`
 
 ## Common operations
 
