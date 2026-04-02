@@ -1,0 +1,19 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../base
+images:
+  - name: cartest-be
+    newName: ghcr.io/joe1234pk/cartest-be
+    newTag: dev
+  - name: cartest-fe
+    newName: ghcr.io/joe1234pk/cartest-fe
+    newTag: dev
+patches:
+  - target:
+      kind: Ingress
+      name: cartest
+    patch: |-
+      - op: replace
+        path: /spec/rules/0/host
+        value: cartest-dev.local

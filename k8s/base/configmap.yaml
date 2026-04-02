@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cartest-app-config
+  namespace: cartest
+data:
+  APP_NAME: php-test-car-app-be
+  APP_ENV: local
+  APP_DEBUG: "true"
+  APP_URL: http://localhost:8080
+  DB_CONNECTION: mysql
+  DB_HOST: mysql
+  DB_PORT: "3306"
+  DB_DATABASE: dinggo_challenge
+  DINGGO_BASE_URL: https://app.dev.aws.dinggo.com.au/phptest
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cartest-frontend-config
+  namespace: cartest
+data:
+  VITE_PROXY_TARGET: http://app:8000

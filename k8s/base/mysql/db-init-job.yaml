@@ -1,0 +1,37 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mysql-schema-init
+  namespace: cartest
+spec:
+  backoffLimit: 3
+  template:
+    metadata:
+      labels:
+        job: mysql-schema-init
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: db-init
+          image: mysql:8
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: cartest-secrets
+                  key: MYSQL_ROOT_PASSWORD
+          command:
+            - sh
+            - -c
+            - >
+              until mysqladmin ping -h mysql -uroot -p"$MYSQL_ROOT_PASSWORD" --silent; do sleep 2; done &&
+              mysql -h mysql -uroot -p"$MYSQL_ROOT_PASSWORD" < /init/schema.sql
+          volumeMounts:
+            - name: db-schema
+              mountPath: /init
+              readOnly: true
+      volumes:
+        - name: db-schema
+          configMap:
+            name: cartest-db-schema
